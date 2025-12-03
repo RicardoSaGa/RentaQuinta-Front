@@ -5,6 +5,7 @@ import LoginModal from "../components/LoginModal";
 import { useAuth } from "../context/AuthContext";
 import { useEffect } from "react";
 import { useLocation } from "react-router-dom";
+import logoImg from '../assets/logosinfondo.png';
 
 function Header() {
   const location = useLocation();
@@ -25,8 +26,12 @@ function Header() {
       <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
 
         {/* LOGO */}
-        <Link to="/" className="text-2xl font-bold text-gray-900">
-          RentaQuinta
+        <Link to="/" className="flex items-center">
+          <img 
+            src={logoImg} 
+            alt="Logo RentaQuinta" 
+            className="h-10 w-auto object-contain transition-transform duration-300 hover:scale-110"
+          />
         </Link>
 
         {/* NAV MOBILE BUTTON */}

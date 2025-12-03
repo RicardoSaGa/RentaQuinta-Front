@@ -1,5 +1,6 @@
 import { Outlet } from "react-router-dom";
 import Header from "../components/Header";
+import Footer from "../components/Footer";
 import { useState } from "react";
 
 function MainLayout() {
@@ -27,7 +28,9 @@ function MainLayout() {
 
       <main className="pt-6">
         <Outlet />
+        <Footer/>
       </main>
+
     </div>
   );
 }
