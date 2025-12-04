@@ -7,13 +7,8 @@ export default function ProtectedRoute({ children }) {
 
   // Si NO está logeado → mandar al login con redirectTo
   if (!user) {
-    return (
-      <Navigate
-        to="/login"
-        replace
-        state={{ redirectTo: location.pathname }}
-      />
-    );
+      openLoginModal();
+      return null;
   }
 
   // Si sí está logeado → mostrar la página
