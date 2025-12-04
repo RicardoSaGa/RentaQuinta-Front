@@ -81,6 +81,8 @@ function QuintaView() {
   const [telefonoCliente, setTelefonoCliente] = useState("");
   const [emailCliente, setEmailCliente] = useState("");
   const [mensajeCliente, setMensajeCliente] = useState("");
+  const [idReserva, setIdReserva] = useState(null);
+
 
   // Cargar info de la quinta
   useEffect(() => {
@@ -89,11 +91,27 @@ function QuintaView() {
       .catch((err) => console.log(err));
   }, [id]);
 
-  const pagarConStripe = () => {
-    // Aquí después llamaremos al backend para crear la sesión de Stripe
-    console.log("Ir a Stripe con la reserva (aquí va la lógica de pago).");
-  };
+    const pagarConStripe = async () => {
+    if (!idReserva) {
+      return alert("No se encontró la reserva. Intenta reservar de nuevo.");
+    }
 
+    try {
+      const res = await API.post("/pagos/stripe/checkout", null, {
+        params: { idReserva },
+      });
+
+      if (res.data && res.data.url) {
+        window.location.href = res.data.url; // redirige al Checkout de Stripe
+      } else {
+        alert("No se pudo obtener la URL de pago.");
+      }
+    } catch (err) {
+      console.log(err);
+      alert("Ocurrió un problema al iniciar el pago con tarjeta.");
+    }
+  };
+  
   const pagarPorTransferencia = () => {
     // Aquí después mostrarás datos bancarios o redirigirás a una página de instrucciones
     console.log("Mostrar instrucciones de transferencia bancaria.");
@@ -117,15 +135,16 @@ function QuintaView() {
       emailCliente,
       mensajeCliente,
     })
-      .then(() => {
+      .then((res) => {
+        // Guardamos el id de la reserva para usarlo al pagar
+        setIdReserva(res.data.id);
+
         setModalTitulo("Reserva creada");
         setModalMensaje("Selecciona tu método de pago para continuar.");
         setModalOpen(true);
       })
       .catch((err) => console.log(err));
   };
-
-
 
   if (!quinta) return <div className="p-10">Cargando...</div>;
 

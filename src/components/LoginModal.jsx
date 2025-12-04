@@ -11,6 +11,8 @@ function LoginModal({ isOpen, onClose }) {
   const [email, setEmail] = useState("");
   const [nombre, setNombre] = useState("");
   const [password, setPassword] = useState("");
+  const [telefono, setTelefono] = useState("");
+
 
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
@@ -53,7 +55,8 @@ function LoginModal({ isOpen, onClose }) {
       await API.post("/auth/register", {
         nombre,
         email,
-        password
+        password,
+        telefono
       });
 
       alert("Cuenta creada. Revisa tu bandeja de entrada.");
@@ -154,7 +157,18 @@ function LoginModal({ isOpen, onClose }) {
                   required
                 />
               </div>
-
+              <div>
+                <label className="block text-sm font-medium text-gray-700">
+                  Teléfono (10 dígitos)
+                </label>
+                <input
+                  type="text"
+                  className="w-full mt-1 px-4 py-2 border rounded-xl focus:ring-2 focus:ring-green-500 outline-none transition"
+                  value={telefono}
+                  onChange={(e) => setTelefono(e.target.value)}
+                  required
+                />
+              </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700">
                   Correo electrónico
