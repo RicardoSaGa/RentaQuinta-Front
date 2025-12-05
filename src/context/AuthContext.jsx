@@ -22,7 +22,10 @@ export function AuthProvider({ children }) {
         headers: { Authorization: `Bearer ${token}` },
       })
       .then((res) => setUser(res.data))
-      .catch(() => logout());
+      .catch(() => {
+        console.warn("No se pudo cargar el perfil, manteniendo token.");
+      });
+
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [token]);
 

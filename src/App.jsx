@@ -6,7 +6,7 @@ import PagoCancelado from "./pages/PagoCancelado";
 import ProtectedRoute from "./components/ProtectedRoute";
 import ReservaView from "./pages/ReservaView";
 import MisReservas from "./pages/MisReservas";
-
+import NuevaQuinta from "./pages/NuevaQuinta";
 
 // Pages
 import Home from "./pages/Home";
@@ -45,6 +45,16 @@ function App() {
             </ProtectedRoute>
           }
         />
+
+        <Route
+          path="/dashboard/nueva-quinta"
+          element={
+            <ProtectedRoute>
+              <NuevaQuinta />
+            </ProtectedRoute>
+          }
+        />
+
 
       </Routes>
     </BrowserRouter>
