@@ -7,6 +7,9 @@ import ProtectedRoute from "./components/ProtectedRoute";
 import ReservaView from "./pages/ReservaView";
 import MisReservas from "./pages/MisReservas";
 import NuevaQuinta from "./pages/NuevaQuinta";
+import MisQuintas from "./pages/MisQuintas";
+import QuintaAdmin from "./pages/QuintaAdmin";
+
 
 // Pages
 import Home from "./pages/Home";
@@ -51,6 +54,24 @@ function App() {
           element={
             <ProtectedRoute>
               <NuevaQuinta />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/dashboard/mis-quintas"
+          element={
+            <ProtectedRoute>
+              <MisQuintas />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/dashboard/quinta/:id"
+          element={
+            <ProtectedRoute>
+              <QuintaAdmin />
             </ProtectedRoute>
           }
         />
