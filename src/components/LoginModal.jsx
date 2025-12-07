@@ -18,6 +18,11 @@ function LoginModal({ isOpen, onClose }) {
 
   if (!isOpen) return null;
 
+  // GOOGLE ANALYTICS | GA4: el modal se abrió
+  if (window.gtag) {
+    window.gtag("event", "login_opened");
+  }
+
   const handleLogin = async (e) => {
     e.preventDefault();
     setLoading(true);

@@ -55,7 +55,22 @@ function ReservaCalendar({ quintaId, onDateSelect }) {
   // -------------------------
   // Manejo correcto del rango
   // -------------------------
+
+  const [firstInteraction, setFirstInteraction] = useState(false);
+
   const handleChange = (ranges) => {
+
+    if (!firstInteraction) {
+      setFirstInteraction(true);
+
+      // GOOGLE ANALYTICS | EVENTO GA4: Calendario abierto / primera interacción
+      if (window.gtag) {
+        window.gtag("event", "open_calendar", {
+          quinta_id: quintaId,
+        });
+      }
+    }
+
     const sel = ranges.selection;
     if (!sel) return;
 

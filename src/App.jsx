@@ -1,4 +1,6 @@
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Routes, Route, useLocation } from "react-router-dom";
+import { useEffect } from "react";
+
 import MainLayout from "./layouts/MainLayout";
 import Verificado from "./pages/Verificado";
 import PagoExito from "./pages/PagoExito";
@@ -9,16 +11,33 @@ import MisReservas from "./pages/MisReservas";
 import NuevaQuinta from "./pages/NuevaQuinta";
 import MisQuintas from "./pages/MisQuintas";
 import QuintaAdmin from "./pages/QuintaAdmin";
-
-
-// Pages
 import Home from "./pages/Home";
 import QuintaView from "./pages/QuintaView";
 import NotFound from "./pages/NotFound";
 
+
+function PageTracker() {
+  const location = useLocation();
+
+  useEffect(() => {
+    if (window.gtag) {
+      window.gtag("event", "page_view", {
+        page_path: location.pathname + location.search,
+        page_title: document.title,
+      });
+    }
+  }, [location]);
+
+  return null; // No renderiza nada
+}
+
+
 function App() {
   return (
     <BrowserRouter>
+
+      <PageTracker />
+
       <Routes>
 
         <Route path="/" element={<MainLayout />}>
@@ -75,7 +94,6 @@ function App() {
             </ProtectedRoute>
           }
         />
-
 
       </Routes>
     </BrowserRouter>

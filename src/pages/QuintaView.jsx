@@ -90,10 +90,29 @@ function QuintaView() {
       .catch((err) => console.log(err));
   }, [id]);
 
+  // GOOGLE ANALYTICS
+  useEffect(() => {
+    if (quinta && window.gtag) {
+      window.gtag("event", "view_quinta", {
+        quinta_id: quinta.id,
+        nombre: quinta.nombre,
+        ubicacion: quinta.ubicacion,
+      });
+    }
+  }, [quinta]);
+
   const pagarConStripe = async () => {
     if (!idReserva) {
       return alert("No se encontró la reserva. Intenta reservar de nuevo.");
     }
+
+    if (window.gtag) {
+      window.gtag("event", "checkout_started", {
+        reserva_id: idReserva,
+        quinta_id: quinta.id,
+      });
+    }
+
 
     try {
       const res = await API.post("/pagos/stripe/checkout", null, {
@@ -124,6 +143,15 @@ function QuintaView() {
       return alert("Por favor completa los datos obligatorios.");
     }
 
+    // GOOGLE ANALYTICS | EVENTO GA4: intentar reservar
+    if (window.gtag) {
+      window.gtag("event", "attempt_reserve", {
+        quinta_id: quinta.id,
+        fecha_inicio: selectedRange.startDate.toISOString().slice(0, 10),
+        fecha_fin: selectedRange.endDate.toISOString().slice(0, 10),
+      });
+    }
+
     API.post(`/quintas/${id}/reservar`, {
       inicio: selectedRange.startDate.toISOString().slice(0, 10),
       fin: selectedRange.endDate.toISOString().slice(0, 10),
@@ -133,6 +161,14 @@ function QuintaView() {
       mensajeCliente,
     })
       .then((res) => {
+
+        if (window.gtag) {
+          window.gtag("event", "reserva_creada", {
+            reserva_id: res.data.id,
+            quinta_id: id,
+          });
+        }
+
         setIdReserva(res.data.id);
         setModalTitulo("Reserva creada");
         setModalMensaje("Selecciona tu método de pago para continuar.");
