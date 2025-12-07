@@ -6,7 +6,6 @@ import ReservaCalendar from "../components/ReservaCalendar";
 import Amenidades from "../components/Amenidades";
 import ModalReserva from "../components/ModalReserva";
 
-
 import { MapContainer, TileLayer, Marker, Popup } from "react-leaflet";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
@@ -32,6 +31,8 @@ function ModalGaleria({ fotos, onClose, indexInicial }) {
   const anterior = () =>
     setIndex((prev) => (prev - 1 + fotos.length) % fotos.length);
 
+  if (!fotos || fotos.length === 0) return null;
+
   return (
     <div className="fixed inset-0 bg-black/90 flex items-center justify-center z-50 p-4">
       <button
@@ -50,7 +51,7 @@ function ModalGaleria({ fotos, onClose, indexInicial }) {
 
       <img
         src={fotos[index].url}
-        className="max-h-[90%] max-w-[90%] rounded-xl shadow-xl"
+        className="max-h-[90%] max-w-[90%] rounded-xl shadow-xl object-contain"
       />
 
       <button
@@ -64,7 +65,6 @@ function ModalGaleria({ fotos, onClose, indexInicial }) {
 }
 
 function QuintaView() {
-
   const [modalOpen, setModalOpen] = useState(false);
   const [modalTitulo, setModalTitulo] = useState("");
   const [modalMensaje, setModalMensaje] = useState("");
@@ -83,7 +83,6 @@ function QuintaView() {
   const [mensajeCliente, setMensajeCliente] = useState("");
   const [idReserva, setIdReserva] = useState(null);
 
-
   // Cargar info de la quinta
   useEffect(() => {
     API.get(`/quintas/${id}`)
@@ -91,7 +90,7 @@ function QuintaView() {
       .catch((err) => console.log(err));
   }, [id]);
 
-    const pagarConStripe = async () => {
+  const pagarConStripe = async () => {
     if (!idReserva) {
       return alert("No se encontró la reserva. Intenta reservar de nuevo.");
     }
@@ -102,7 +101,7 @@ function QuintaView() {
       });
 
       if (res.data && res.data.url) {
-        window.location.href = res.data.url; // redirige al Checkout de Stripe
+        window.location.href = res.data.url;
       } else {
         alert("No se pudo obtener la URL de pago.");
       }
@@ -111,12 +110,10 @@ function QuintaView() {
       alert("Ocurrió un problema al iniciar el pago con tarjeta.");
     }
   };
-  
+
   const pagarPorTransferencia = () => {
-    // Aquí después mostrarás datos bancarios o redirigirás a una página de instrucciones
     console.log("Mostrar instrucciones de transferencia bancaria.");
   };
-
 
   const reservar = () => {
     if (!selectedRange) {
@@ -136,9 +133,7 @@ function QuintaView() {
       mensajeCliente,
     })
       .then((res) => {
-        // Guardamos el id de la reserva para usarlo al pagar
         setIdReserva(res.data.id);
-
         setModalTitulo("Reserva creada");
         setModalMensaje("Selecciona tu método de pago para continuar.");
         setModalOpen(true);
@@ -146,188 +141,210 @@ function QuintaView() {
       .catch((err) => console.log(err));
   };
 
-  if (!quinta) return <div className="p-10">Cargando...</div>;
+  if (!quinta) {
+    return (
+      <div className="min-h-[60vh] flex items-center justify-center text-textc/70">
+        Cargando...
+      </div>
+    );
+  }
 
   const fotos = quinta.fotos || [];
 
   return (
-    <div className="max-w-7xl mx-auto p-5 space-y-10">
-      {/* Encabezado */}
-      <div className="space-y-2">
-        <h1 className="text-4xl font-bold tracking-tight">{quinta.nombre}</h1>
+    <div className="bg-white min-h-screen">
+      <div className="max-w-7xl mx-auto px-6 py-8 space-y-8">
+        {/* Encabezado */}
+        <div className="space-y-2">
+          <h1 className="text-3xl md:text-4xl font-semibold text-textc tracking-tight">
+            {quinta.nombre}
+          </h1>
 
-        <div className="flex items-center gap-2 text-gray-600">
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            fill="none"
-            viewBox="0 0 24 24"
-            strokeWidth="2"
-            stroke="currentColor"
-            className="w-5 h-5"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              d="M15 10.5a3 3 0 11-6 0 3 3 0 016 0z"
-            />
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              d="M19.5 10.5c0 7.5-7.5 11.25-7.5 11.25S4.5 18 4.5 10.5a7.5 7.5 0 1115 0z"
-            />
-          </svg>
-          {quinta.ubicacion}
-        </div>
-      </div>
-
-      {/* Galería PRO tipo Airbnb */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-3 rounded-2xl overflow-hidden shadow-xl h-[420px]">
-        {/* Foto principal */}
-        <div className="lg:col-span-2 relative h-full">
-          <img
-            src={fotos[0]?.url}
-            className="w-full h-full object-cover cursor-pointer"
-            onClick={() => {
-              setFotoInicial(0);
-              setMostrarGaleria(true);
-            }}
-          />
-
-          <button
-            onClick={() => {
-              setFotoInicial(0);
-              setMostrarGaleria(true);
-            }}
-            className="absolute bottom-4 left-4 bg-black/50 text-white px-3 py-1 rounded-lg text-sm"
-          >
-            Ver fotos
-          </button>
-        </div>
-
-        {/* Columnas derechas */}
-        <div className="grid grid-rows-2 gap-3 h-full">
-          <img
-            src={fotos[1]?.url || fotos[0]?.url}
-            className="w-full h-full object-cover cursor-pointer"
-            onClick={() => {
-              setFotoInicial(1);
-              setMostrarGaleria(true);
-            }}
-          />
-
-          <img
-            src={fotos[2]?.url || fotos[0]?.url}
-            className="w-full h-full object-cover cursor-pointer"
-            onClick={() => {
-              setFotoInicial(2);
-              setMostrarGaleria(true);
-            }}
-          />
-        </div>
-      </div>
-
-      {/* Información */}
-      <p className="text-lg text-gray-700">{quinta.descripcion}</p>
-
-      <div className="flex gap-6 text-lg">
-        <span>
-          Capacidad: <b>{quinta.capacidad}</b> personas
-        </span>
-        <span>
-          Precio base: <b>${quinta.precioBase}</b> MXN
-        </span>
-      </div>
-
-      <Amenidades quinta={quinta} />
-
-      {/* Mapa + Reserva */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-10">
-        {/* Lado izquierdo */}
-        <div className="lg:col-span-2 space-y-10">
-          {/* Mapa */}
-          <div>
-            <h2 className="text-2xl font-bold mb-3">Ubicación</h2>
-
-            <MapContainer
-              center={extraerCoordenadas(quinta)}
-              zoom={15}
-              scrollWheelZoom={false}
-              className="h-[300px] w-full rounded-xl overflow-hidden shadow"
+          <div className="flex items-center gap-2 text-textc/70 text-sm md:text-base">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 24 24"
+              strokeWidth="2"
+              stroke="currentColor"
+              className="w-5 h-5"
             >
-              <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
-              <Marker position={extraerCoordenadas(quinta)} icon={icon}>
-                <Popup>
-                  {quinta.nombre}
-                  <br />
-                  {quinta.ubicacion}
-                </Popup>
-              </Marker>
-            </MapContainer>
-          </div>
-
-          {/* Tour 360 */}
-          <div className="rounded-xl shadow bg-white p-4">
-            <h3 className="text-xl font-bold mb-2">Vista 360°</h3>
-            <Panorama360 imageUrl={quinta.foto360} />
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                d="M15 10.5a3 3 0 11-6 0 3 3 0 016 0z"
+              />
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                d="M19.5 10.5c0 7.5-7.5 11.25-7.5 11.25S4.5 18 4.5 10.5a7.5 7.5 0 1115 0z"
+              />
+            </svg>
+            <span>{quinta.ubicacion}</span>
           </div>
         </div>
 
-        {/* Caja de reserva estilo Airbnb */}
-        <div className="sticky top-24 bg-white border rounded-2xl shadow-xl p-6 space-y-5">
-          <div className="flex justify-between items-end">
-            <div className="text-3xl font-bold">${quinta.precioBase}</div>
-            <div className="text-gray-600">MXN / noche</div>
+        {/* Galería tipo Airbnb */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-3 rounded-2xl overflow-hidden shadow-xl h-[380px] md:h-[420px] bg-muted/20">
+          {/* Foto principal */}
+          <div className="lg:col-span-2 relative h-full">
+            <img
+              src={fotos[0]?.url || "/noimage.png"}
+              className="w-full h-full object-cover cursor-pointer"
+              onClick={() => {
+                setFotoInicial(0);
+                setMostrarGaleria(true);
+              }}
+            />
+
+            <button
+              onClick={() => {
+                setFotoInicial(0);
+                setMostrarGaleria(true);
+              }}
+              className="absolute bottom-4 left-4 bg-black/60 text-white px-3 py-1.5 rounded-full text-sm flex items-center gap-2"
+            >
+              Ver todas las fotos
+            </button>
           </div>
 
-          <ReservaCalendar
-            quintaId={id}
-            onDateSelect={(sel) => setSelectedRange(sel)}
-          />
-
-          {/* FORMULARIO DE DATOS DEL CLIENTE */}
-          <div className="space-y-4">
-            <input
-              type="text"
-              placeholder="Tu nombre"
-              className="w-full border rounded-xl px-4 py-2 focus:ring-2 focus:ring-green-500 outline-none"
-              value={nombreCliente}
-              onChange={(e) => setNombreCliente(e.target.value)}
+          {/* Columnas derechas */}
+          <div className="grid grid-rows-2 gap-3 h-full">
+            <img
+              src={fotos[1]?.url || fotos[0]?.url || "/noimage.png"}
+              className="w-full h-full object-cover cursor-pointer"
+              onClick={() => {
+                setFotoInicial(1);
+                setMostrarGaleria(true);
+              }}
             />
 
-            <input
-              type="tel"
-              placeholder="Tu teléfono"
-              className="w-full border rounded-xl px-4 py-2 focus:ring-2 focus:ring-green-500 outline-none"
-              value={telefonoCliente}
-              onChange={(e) => setTelefonoCliente(e.target.value)}
+            <img
+              src={fotos[2]?.url || fotos[0]?.url || "/noimage.png"}
+              className="w-full h-full object-cover cursor-pointer"
+              onClick={() => {
+                setFotoInicial(2);
+                setMostrarGaleria(true);
+              }}
             />
+          </div>
+        </div>
 
-            <input
-              type="email"
-              placeholder="Tu correo"
-              className="w-full border rounded-xl px-4 py-2 focus:ring-2 focus:ring-green-500 outline-none"
-              value={emailCliente}
-              onChange={(e) => setEmailCliente(e.target.value)}
-            />
+        {/* Descripción + datos + amenidades */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-10">
+          {/* Columna izquierda: descripción, capacidad, amenidades */}
+          <div className="lg:col-span-2 space-y-6">
+            <p className="text-base md:text-lg text-textc/80 leading-relaxed">
+              {quinta.descripcion}
+            </p>
 
-            <textarea
-              placeholder="Mensaje opcional (¿motivo de la renta?, ¿número de personas?, ¿evento?)"
-              className="w-full border rounded-xl px-4 py-2 focus:ring-2 focus:ring-green-500 outline-none resize-none h-24"
-              value={mensajeCliente}
-              onChange={(e) => setMensajeCliente(e.target.value)}
-            ></textarea>
+            <div className="flex flex-wrap gap-4 text-sm md:text-base text-textc/80">
+              <span>
+                Capacidad: <b>{quinta.capacidad}</b> personas
+              </span>
+              <span>
+                Precio base:{" "}
+                <b className="text-primary">${quinta.precioBase}</b> MXN
+              </span>
+            </div>
+
+            <div className="mt-4">
+              <Amenidades quinta={quinta} />
+            </div>
+
+            {/* Mapa */}
+            <div className="mt-8">
+              <h2 className="text-2xl font-semibold mb-3 text-textc">
+                Ubicación
+              </h2>
+
+              <MapContainer
+                center={extraerCoordenadas(quinta)}
+                zoom={15}
+                scrollWheelZoom={false}
+                className="h-[280px] w-full rounded-xl overflow-hidden shadow-md"
+              >
+                <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
+                <Marker position={extraerCoordenadas(quinta)} icon={icon}>
+                  <Popup>
+                    {quinta.nombre}
+                    <br />
+                    {quinta.ubicacion}
+                  </Popup>
+                </Marker>
+              </MapContainer>
+            </div>
+
+            {/* Tour 360 */}
+            <div className="mt-8 rounded-xl shadow-md bg-white border border-muted/40 p-4">
+              <h3 className="text-xl font-semibold mb-2 text-textc">
+                Vista 360°
+              </h3>
+              <Panorama360 imageUrl={quinta.foto360} />
+            </div>
           </div>
 
-          <button
-            onClick={reservar}
-            className="w-full bg-green-600 text-white text-lg font-semibold py-3 rounded-xl hover:bg-green-700"
-          >
-            Reservar ahora
-          </button>
+          {/* Columna derecha: caja de reserva estilo Airbnb */}
+          <div className="sticky top-24 bg-white border border-muted/40 rounded-2xl shadow-xl p-6 space-y-5 h-fit">
+            <div className="flex justify-between items-end">
+              <div>
+                <div className="text-3xl font-bold text-textc">
+                  ${quinta.precioBase}
+                </div>
+                <div className="text-textc/70 text-sm">MXN / noche</div>
+              </div>
+            </div>
+
+            <ReservaCalendar
+              quintaId={id}
+              onDateSelect={(sel) => setSelectedRange(sel)}
+            />
+
+            {/* FORMULARIO DE DATOS DEL CLIENTE */}
+            <div className="space-y-4 mt-2">
+              <input
+                type="text"
+                placeholder="Tu nombre"
+                className="w-full border border-muted/60 rounded-full px-4 py-2 text-textc focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary/40"
+                value={nombreCliente}
+                onChange={(e) => setNombreCliente(e.target.value)}
+              />
+
+              <input
+                type="tel"
+                placeholder="Tu teléfono"
+                className="w-full border border-muted/60 rounded-full px-4 py-2 text-textc focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary/40"
+                value={telefonoCliente}
+                onChange={(e) => setTelefonoCliente(e.target.value)}
+              />
+
+              <input
+                type="email"
+                placeholder="Tu correo"
+                className="w-full border border-muted/60 rounded-full px-4 py-2 text-textc focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary/40"
+                value={emailCliente}
+                onChange={(e) => setEmailCliente(e.target.value)}
+              />
+
+              <textarea
+                placeholder="Mensaje opcional (motivo, número de personas, evento...)"
+                className="w-full border border-muted/60 rounded-xl px-4 py-2 text-textc focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary/40 resize-none h-24"
+                value={mensajeCliente}
+                onChange={(e) => setMensajeCliente(e.target.value)}
+              ></textarea>
+            </div>
+
+            <button
+              onClick={reservar}
+              className="w-full bg-primary text-white text-base font-semibold py-3 rounded-full hover:bg-accent transition shadow-sm"
+            >
+              Reservar ahora
+            </button>
+          </div>
         </div>
       </div>
 
-      {/* Modal */}
+      {/* Modal de fotos */}
       {mostrarGaleria && (
         <ModalGaleria
           fotos={fotos}
@@ -335,6 +352,8 @@ function QuintaView() {
           onClose={() => setMostrarGaleria(false)}
         />
       )}
+
+      {/* Modal de reserva */}
       <ModalReserva
         open={modalOpen}
         onClose={() => setModalOpen(false)}
@@ -343,11 +362,8 @@ function QuintaView() {
         onPagarStripe={pagarConStripe}
         onPagarTransferencia={pagarPorTransferencia}
       />
-
     </div>
-
   );
-
 }
 
 export default QuintaView;

@@ -10,7 +10,6 @@ function FiltersBar({ onFilterChange }) {
     tour360: "todas",
   });
 
-  // Evitar ejecutar filtros en el primer render
   const firstRender = useRef(true);
 
   useEffect(() => {
@@ -26,26 +25,29 @@ function FiltersBar({ onFilterChange }) {
   };
 
   return (
-    <div className="bg-white p-4 rounded-xl shadow mb-6 flex flex-wrap gap-4 items-center">
+    <div className="bg-white border border-muted/40 p-4 sm:p-5 rounded-2xl shadow-sm flex flex-wrap gap-4 items-center">
 
-      {/* Buscar por nombre */}
+      {/* Buscar nombre */}
       <input
-        className="border rounded p-2 flex-1 min-w-[180px]"
+        className="border border-muted/60 focus:border-primary focus:ring-primary/40 rounded-full px-4 py-2 w-full sm:flex-1 text-textc placeholder:text-muted outline-none transition"
         placeholder="Buscar nombre..."
         value={filters.nombre}
         onChange={(e) => handle("nombre", e.target.value)}
       />
 
       {/* Selector de ubicación */}
-      <UbicacionSelector
-        onSelect={(fullUbicacion) => handle("ubicacion", fullUbicacion)}
-        onSelectText={filters.ubicacion}
-      />
+      <div className="w-full sm:w-auto">
+        <UbicacionSelector
+          onSelect={(fullUbicacion) => handle("ubicacion", fullUbicacion)}
+          onSelectText={filters.ubicacion}
+          className="rounded-full"
+        />
+      </div>
 
       {/* Capacidad */}
       <input
         type="number"
-        className="border rounded p-2 w-32"
+        className="border border-muted/60 focus:border-primary focus:ring-primary/40 rounded-full px-4 py-2 w-32 text-textc placeholder:text-muted outline-none transition"
         placeholder="Capacidad"
         value={filters.capacidad}
         onChange={(e) => handle("capacidad", e.target.value)}
@@ -54,7 +56,7 @@ function FiltersBar({ onFilterChange }) {
       {/* Precio máximo */}
       <input
         type="number"
-        className="border rounded p-2 w-32"
+        className="border border-muted/60 focus:border-primary focus:ring-primary/40 rounded-full px-4 py-2 w-32 text-textc placeholder:text-muted outline-none transition"
         placeholder="Precio máx"
         value={filters.maxPrecio}
         onChange={(e) => handle("maxPrecio", e.target.value)}
@@ -62,7 +64,7 @@ function FiltersBar({ onFilterChange }) {
 
       {/* Tour 360 */}
       <select
-        className="border rounded p-2 w-32"
+        className="border border-muted/60 focus:border-primary focus:ring-primary/40 rounded-full px-4 py-2 w-36 text-textc bg-white outline-none transition"
         value={filters.tour360}
         onChange={(e) => handle("tour360", e.target.value)}
       >
@@ -75,4 +77,3 @@ function FiltersBar({ onFilterChange }) {
 }
 
 export default FiltersBar;
-
