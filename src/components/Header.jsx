@@ -66,14 +66,29 @@ function Header() {
         </nav>
 
         {/* USUARIO */}
-        <div className="hidden md:block relative">
+        <div className="hidden md:flex items-center gap-6 relative">
+
+          {/* NUEVO: Registrar mi Quinta (si NO está logueado o si está logueado pero no es OWNER) */}
+          <Link
+            to="/registrar-quinta"
+            className="text-textc text-sm font-medium border border-primary/40 bg-white px-4 py-1.5 rounded-full hover:bg-primary hover:text-bg transition-colors shadow-sm"
+          >
+            Registrar mi Quinta
+          </Link>
+
           {user ? (
             <>
+              {/* BOTÓN USUARIO → ICONO + NOMBRE */}
               <button
                 onClick={() => setMenuOpen(!menuOpen)}
-                className="w-12 h-12 rounded-full border border-primary/40 bg-white text-textc flex items-center justify-center transition hover:bg-primary/10"
+                className="flex items-center gap-2 px-3 py-1.5 rounded-full border border-primary/40 bg-white hover:bg-primary/10 transition"
               >
-                <FiUser className="text-xl" />
+                <div className="w-9 h-9 rounded-full border border-primary/40 bg-gray-100 flex items-center justify-center">
+                  <FiUser className="text-xl text-textc" />
+                </div>
+                <span className="font-medium text-textc">
+                  {user.nombre?.split(" ")[0]}
+                </span>
               </button>
 
               {/* MENÚ DROPDOWN */}
@@ -86,6 +101,7 @@ function Header() {
                   <Link
                     to="/perfil"
                     className="block px-3 py-2 hover:bg-bg rounded-lg text-textc"
+                    onClick={() => setMenuOpen(false)}
                   >
                     Mi perfil
                   </Link>
@@ -94,10 +110,19 @@ function Header() {
                     <Link
                       to="/mis-quintas"
                       className="block px-3 py-2 hover:bg-bg rounded-lg text-textc"
+                      onClick={() => setMenuOpen(false)}
                     >
                       Mis quintas
                     </Link>
                   )}
+
+                  <Link
+                    to="/mis-reservas"
+                    className="block px-3 py-2 hover:bg-bg rounded-lg text-textc"
+                    onClick={() => setMenuOpen(false)}
+                  >
+                    Mis Reservas
+                  </Link>
 
                   <button
                     onClick={logout}
@@ -109,13 +134,18 @@ function Header() {
               )}
             </>
           ) : (
-            <button
-              onClick={() => setLoginOpen(true)}
-              className="w-12 h-12 rounded-full border border-primary/40 bg-white hover:bg-primary/10 hover:border-primary transition flex items-center justify-center text-textc"
-            >
-              <FiUser className="text-xl" />
-            </button>
+            /* NO LOGUEADO → Mostrar solo Acceder */
+            <div className="flex items-center gap-6">
+              <button
+                onClick={() => setLoginOpen(true)}
+                className="flex items-center gap-2 text-textc font-medium hover:text-primary transition"
+              >
+                <FiUser className="text-base" />
+                <span>Acceder</span>
+              </button>
+            </div>
           )}
+
         </div>
       </div>
 
@@ -146,9 +176,26 @@ function Header() {
             Mapa
           </Link>
 
+          {/* NUEVO - MOBILE: Registrar mi Quinta */}
+          <Link
+            to="/registrar-quinta"
+            className="block text-lg text-textc"
+            onClick={() => setOpen(false)}
+          >
+            Registrar mi Quinta
+          </Link>
+
           {user ? (
             <>
               <p className="mt-4 font-semibold text-textc">{user.nombre}</p>
+
+              <Link
+                to="/mis-reservas"
+                className="block text-lg text-textc"
+                onClick={() => setOpen(false)}
+              >
+                Mis Reservas
+              </Link>
 
               <button
                 onClick={logout}
@@ -165,7 +212,7 @@ function Header() {
               }}
               className="flex items-center gap-2 text-lg text-textc"
             >
-              <FiUser className="text-xl" /> Iniciar sesión
+              <FiUser className="text-xl" /> Acceder
             </button>
           )}
         </nav>

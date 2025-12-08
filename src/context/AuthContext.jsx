@@ -4,6 +4,11 @@ import axios from "axios";
 
 const AuthContext = createContext();
 
+const defaultAvatars = {
+  Masculino: "/src/assets/avatars/male-default.png",
+  Femenino: "/src/assets/avatars/female-default.png",
+};
+
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
   const [token, setToken] = useState(localStorage.getItem("token") || null);
@@ -50,16 +55,23 @@ export function AuthProvider({ children }) {
   };
 
   // REGISTER (nombre + email + password)
-  const register = async ({ nombre, email, password }) => {
-    await axios.post(`${AUTH_BASE}/auth/register`, {
-      nombre,
-      email,
-      password,
-    });
+  const register = async (userData) => {
+    // Si el usuario no elige avatar, asignar uno por defecto según género
+    const finalData = {
+      ...userData,
+      avatar: userData.avatar || defaultAvatars[userData.genero],
+    };
 
-    // Opcional pero cómodo: loguear automáticamente tras registrarse
-    await login(email, password);
+    const response = await axios.post(
+      `${API_URL}/auth/register`,
+      finalData,
+      { withCredentials: true }
+    );
+
+    setUser(response.data.user);
+    setIsAuthenticated(true);
   };
+
 
   // LOGOUT
   const logout = () => {

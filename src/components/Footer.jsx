@@ -12,7 +12,7 @@ function Footer() {
             RentaQuinta
           </h3>
           <p className="text-sm text-textc/70 leading-relaxed">
-            Encuentra la quinta perfecta para tu evento, posada, cumpleaños o reunión. 
+            Encuentra la quinta perfecta para tu evento, posada, cumpleaños o reunión.
             Espacios verificados, anfitriones confiables y reservas seguras.
           </p>
         </div>
@@ -49,7 +49,14 @@ function Footer() {
           <h3 className="text-lg font-medium mb-3">Síguenos</h3>
           <ul className="space-y-2 text-sm">
             <li className="flex items-center gap-2 hover:text-primary transition cursor-pointer">
-              <FiFacebook /> Facebook
+              <a
+                href="https://www.facebook.com/rentaquintaoficial/"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center gap-2"
+              >
+                <FiFacebook /> Facebook
+              </a>
             </li>
             <li className="flex items-center gap-2 hover:text-primary transition cursor-pointer">
               <FiInstagram /> Instagram

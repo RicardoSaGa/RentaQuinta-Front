@@ -44,6 +44,14 @@ function App() {
           <Route index element={<Home />} />
           <Route path="*" element={<NotFound />} />
           <Route path="/quintas/:id" element={<QuintaView />} />
+          <Route
+            path="/mis-reservas"
+            element={
+              <ProtectedRoute>
+                <MisReservas />
+              </ProtectedRoute>
+            }
+          />
         </Route>
 
         <Route path="/verificado" element={<Verificado />} />
@@ -55,15 +63,6 @@ function App() {
           element={
             <ProtectedRoute>
               <ReservaView />
-            </ProtectedRoute>
-          }
-        />
-
-        <Route
-          path="/mis-reservas"
-          element={
-            <ProtectedRoute>
-              <MisReservas />
             </ProtectedRoute>
           }
         />
