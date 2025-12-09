@@ -15,7 +15,7 @@ function Header() {
 
   useEffect(() => {
     const params = new URLSearchParams(location.search);
-    if (params.get("showLogin") === "true") {
+    if (params.get("showLogin") === "true" || params.get("token")) {
       setLoginOpen(true);
     }
   }, [location]);

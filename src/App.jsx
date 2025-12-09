@@ -14,6 +14,7 @@ import QuintaAdmin from "./pages/QuintaAdmin";
 import Home from "./pages/Home";
 import QuintaView from "./pages/QuintaView";
 import NotFound from "./pages/NotFound";
+import { Toaster } from 'react-hot-toast';
 
 
 function PageTracker() {
@@ -38,10 +39,18 @@ function App() {
 
       <PageTracker />
 
+      <Toaster position="top-center" reverseOrder={false} containerStyle={{
+          zIndex: 999999, // <--- ESTO SOLUCIONA QUE SE VEA BORROSO DETRÁS
+        }}
+      />
+
       <Routes>
 
         <Route path="/" element={<MainLayout />}>
           <Route index element={<Home />} />
+
+          <Route path="restablecer-password" element={<Home />} />
+          
           <Route path="*" element={<NotFound />} />
           <Route path="/quintas/:id" element={<QuintaView />} />
           <Route

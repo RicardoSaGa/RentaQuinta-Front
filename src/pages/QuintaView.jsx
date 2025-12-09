@@ -9,6 +9,7 @@ import ModalReserva from "../components/ModalReserva";
 import { MapContainer, TileLayer, Marker, Popup } from "react-leaflet";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
+import toast from "react-hot-toast";
 
 // Icon personalizado
 const icon = new L.Icon({
@@ -103,7 +104,7 @@ function QuintaView() {
 
   const pagarConStripe = async () => {
     if (!idReserva) {
-      return alert("No se encontró la reserva. Intenta reservar de nuevo.");
+      return toast.warning("No se encontró la reserva. Intenta reservar de nuevo.");
     }
 
     if (window.gtag) {
@@ -122,11 +123,11 @@ function QuintaView() {
       if (res.data && res.data.url) {
         window.location.href = res.data.url;
       } else {
-        alert("No se pudo obtener la URL de pago.");
+        toast.warning("No se pudo obtener la URL de pago.");
       }
     } catch (err) {
       console.log(err);
-      alert("Ocurrió un problema al iniciar el pago con tarjeta.");
+      toast.error("Ocurrió un problema al iniciar el pago con tarjeta.");
     }
   };
 
@@ -136,11 +137,11 @@ function QuintaView() {
 
   const reservar = () => {
     if (!selectedRange) {
-      return alert("Selecciona un rango de fechas para reservar.");
+      return toast("Selecciona un rango de fechas para reservar.");
     }
 
     if (!nombreCliente || !telefonoCliente || !emailCliente) {
-      return alert("Por favor completa los datos obligatorios.");
+      return toast("Por favor completa los datos obligatorios.");
     }
 
     // GOOGLE ANALYTICS | EVENTO GA4: intentar reservar

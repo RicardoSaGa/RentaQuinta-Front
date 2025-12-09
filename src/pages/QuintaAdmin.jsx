@@ -1,6 +1,8 @@
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import api from "../services/api";
+import toast from 'react-hot-toast';
+
 
 export default function QuintaAdmin() {
     const { id } = useParams();
@@ -48,7 +50,7 @@ export default function QuintaAdmin() {
     // Subir foto
     // ============================
     const handleUploadPhoto = async () => {
-        if (!selectedFile) return alert("Selecciona una foto");
+        if (!selectedFile) return toast("Selecciona una foto");
 
         const formData = new FormData();
         formData.append("file", selectedFile);
@@ -67,10 +69,10 @@ export default function QuintaAdmin() {
             setFotos(prev => [...prev, res.data]);
 
             setSelectedFile(null);
-            alert("Foto subida correctamente");
+            toast.success("Foto subida correctamente");
         } catch (err) {
-            console.error("Error subiendo foto:", err);
-            alert("No se pudo subir la foto");
+            toast.error("Error subiendo foto:");
+            toast.error("No se pudo subir la foto");
         }
     };
 
@@ -86,10 +88,10 @@ export default function QuintaAdmin() {
 
             setFotos(prev => prev.filter(f => f.id !== fotoId));
 
-            alert("Foto eliminada correctamente");
+            toast.success("Foto eliminada correctamente");
         } catch (error) {
-            console.error("Error eliminando foto:", error);
-            alert("No se pudo eliminar la foto");
+            toast.error("Error eliminando foto:");
+            toast.error("No se pudo eliminar la foto");
         }
     };
 

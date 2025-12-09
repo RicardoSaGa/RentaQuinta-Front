@@ -1,6 +1,8 @@
 import { useState } from "react";
 import axios from "axios";
 import { useAuth } from "../context/AuthContext";
+import toast from 'react-hot-toast';
+
 
 export default function NuevaQuinta() {
   const { token } = useAuth();
@@ -55,9 +57,9 @@ export default function NuevaQuinta() {
       );
 
       setQuintaId(res.data.id);
-      alert("Quinta creada, ahora sube fotos");
+      toast.success("Quinta creada, ahora sube fotos");
     } catch (err) {
-      alert("Error creando quinta");
+      toast.error("Error creando quinta");
     } finally {
       setLoading(false);
     }
@@ -65,7 +67,7 @@ export default function NuevaQuinta() {
 
   const subirFotos = async () => {
     if (!quintaId) {
-      alert("Primero crea la quinta");
+      toast("Primero crea la quinta");
       return;
     }
 
@@ -86,7 +88,7 @@ export default function NuevaQuinta() {
       );
     }
 
-    alert("Fotos subidas correctamente");
+    toast.success("Fotos subidas correctamente");
   };
 
   return (

@@ -1,8 +1,9 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { createPortal } from "react-dom";
 import { FiX } from "react-icons/fi";
 import API from "../services/api";
 import { useAuth } from "../context/AuthContext";
+import toast from 'react-hot-toast';
 
 const COUNTRY_OPTIONS = [
   { code: "MX", name: "México", dialCode: "+52" },
@@ -35,12 +36,26 @@ function LoginModal({ isOpen, onClose }) {
   const [error, setError] = useState("");
   const [registerErrors, setRegisterErrors] = useState({});
 
-  if (!isOpen) return null;
+  const [resetToken, setResetToken] = useState("");
 
-  // GOOGLE ANALYTICS | GA4: el modal se abrió
-  if (window.gtag) {
-    window.gtag("event", "login_opened");
-  }
+  useEffect(() => {
+    if (isOpen) {
+      // LIMPIEZA: Aseguramos que los campos no tengan basura anterior
+      setPassword(""); 
+      setConfirmPassword("");
+      setError("");
+
+      const params = new URLSearchParams(window.location.search);
+      const token = params.get("token");
+      if (token) {
+        // Limpiamos la URL para que no se vea el token feo, pero lo guardamos en estado
+        setResetToken(token);
+        setView("reset");
+        // Opcional: Limpiar URL visualmente sin recargar
+        window.history.replaceState({}, document.title, window.location.pathname);
+      }
+    }
+  }, [isOpen]);
 
   const handleLogin = async (e) => {
     e.preventDefault();
@@ -140,10 +155,10 @@ function LoginModal({ isOpen, onClose }) {
         telefono: telefonoCompleto,
         genero,
       });
-      alert("Cuenta creada. Revisa tu bandeja de entrada.");
+      toast.success("¡Cuenta creada! Revisa tu correo.");
       setView("login");
     } catch (err) {
-      setError("Error al crear cuenta. Intenta otro correo.");
+      toast.error("Error al crear cuenta.")
     } finally {
       setLoading(false);
     }
@@ -159,7 +174,10 @@ function LoginModal({ isOpen, onClose }) {
     setView("login");
     setError("");
     setRegisterErrors({});
+    setPassword("");
   };
+
+  if (!isOpen) return null;
 
   return createPortal(
     <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-[9999]">
@@ -232,10 +250,19 @@ function LoginModal({ isOpen, onClose }) {
                 Crear una ahora
               </button>
             </p>
+
+            <p className="text-center text-sm text-gray-600 mt-4">
+              <button
+                onClick={() => { setView("forgot"); setError(""); }}
+                className="text-green-600 font-semibold hover:underline"
+              >
+                ¿Olvidaste tu contraseña?
+              </button>
+            </p>
+
           </>
         )}
-
-        {/* REGISTRO MEJORADO */}
+        
         {view === "register" && (
           <>
             <h2 className="text-2xl font-bold mb-6 text-center text-gray-800">
@@ -419,6 +446,137 @@ function LoginModal({ isOpen, onClose }) {
             </p>
           </>
         )}
+
+        {view === "forgot" && (
+          <>
+            <h2 className="text-2xl font-bold mb-6 text-center text-gray-800">
+              Recuperar contraseña
+            </h2>
+
+            <form
+              onSubmit={async (e) => {
+                e.preventDefault();
+                setError("");
+                setLoading(true);
+
+                try {
+                  await API.post("/auth/forgot-password", { email });
+                  toast("Si el correo existe, te enviamos un enlace para restablecer contraseña.");
+                  setView("login");
+                } catch (err) {
+                  setError("Ocurrió un error, intenta más tarde.");
+                } finally {
+                  setLoading(false);
+                }
+              }}
+              className="space-y-5"
+            >
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Correo electrónico
+                </label>
+                <input
+                  type="email"
+                  className="w-full px-4 py-2 border border-gray-300 rounded-xl 
+                     focus:ring-2 focus:ring-green-500 focus:border-transparent 
+                     outline-none transition"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  required
+                />
+              </div>
+
+              {error && (
+                <p className="text-red-600 text-sm text-center bg-red-50 p-2 rounded-lg">
+                  {error}
+                </p>
+              )}
+
+              <button
+                type="submit"
+                className="w-full bg-green-600 text-white py-3 rounded-xl font-semibold hover:bg-green-700 transform hover:scale-[1.02] transition shadow-md"
+                disabled={loading}
+              >
+                {loading ? "Enviando..." : "Enviar enlace"}
+              </button>
+            </form>
+
+            <p className="text-center text-sm text-gray-600 mt-6">
+              <button
+                onClick={() => setView("login")}
+                className="text-green-600 font-semibold hover:underline"
+              >
+                Volver al inicio de sesión
+              </button>
+            </p>
+          </>
+        )}
+
+        {view === "reset" && (
+          <>
+            <h2 className="text-2xl font-bold mb-6 text-center text-gray-800">
+              Crear nueva contraseña
+            </h2>
+
+            <form
+              onSubmit={async (e) => {
+                e.preventDefault();
+                setError("");
+                setLoading(true);
+
+                try {
+                  await API.post("/auth/reset-password", {
+                    token: resetToken,
+                    newPassword: password,
+                  });
+
+                  toast.success("Contraseña actualizada con éxito");
+                  setPassword("");
+                  setView("login");
+
+                } catch (err) {
+                  const msg = err.response?.data?.message || "Error al actualizar.";
+                  toast.error(msg); 
+                  setError(msg);
+                } finally {
+                  setLoading(false);
+                }
+              }}
+              className="space-y-5"
+            >
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Nueva contraseña
+                </label>
+                <input
+                  type="password"
+                  autoComplete="new-password"
+                  className="w-full px-4 py-2 border border-gray-300 rounded-xl 
+                     focus:ring-2 focus:ring-green-500 focus:border-transparent 
+                     outline-none transition"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  required
+                />
+              </div>
+
+              {error && (
+                <p className="text-red-600 text-sm text-center bg-red-50 p-2 rounded-lg">
+                  {error}
+                </p>
+              )}
+
+              <button
+                type="submit"
+                className="w-full bg-green-600 text-white py-3 rounded-xl font-semibold hover:bg-green-700 transform hover:scale-[1.02] transition shadow-md"
+                disabled={loading}
+              >
+                {loading ? "Actualizando..." : "Guardar contraseña"}
+              </button>
+            </form>
+          </>
+        )}
+
       </div>
     </div>,
     document.body
