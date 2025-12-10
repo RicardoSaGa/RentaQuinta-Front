@@ -14,6 +14,7 @@ import QuintaAdmin from "./pages/QuintaAdmin";
 import Home from "./pages/Home";
 import QuintaView from "./pages/QuintaView";
 import NotFound from "./pages/NotFound";
+import RegistrarQuinta from "./pages/RegistrarQuinta";
 import { Toaster } from 'react-hot-toast';
 
 
@@ -102,6 +103,9 @@ function App() {
             </ProtectedRoute>
           }
         />
+
+        <Route path="/registrar-quinta" element={<RegistrarQuinta />} />
+
 
       </Routes>
     </BrowserRouter>

@@ -7,6 +7,8 @@
 @import "pannellum/build/pannellum.css";
 @import "react-date-range/dist/styles.css";
 @import "react-date-range/dist/theme/default.css";
+@import "leaflet/dist/leaflet.css";
+
 
 /* ---------------------------
    VARIABLES DE DISEÑO GLOBAL
