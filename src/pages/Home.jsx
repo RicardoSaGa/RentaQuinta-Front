@@ -139,7 +139,7 @@ function Home() {
                   </p>
 
                   <p className="mt-3 font-bold text-primary text-lg">
-                    ${q.precioBase} MXN
+                    {q.precioDesde ? `Desde $${q.precioDesde} MXN` : "Sin tarifas"}
                   </p>
 
                   <Button variant="primary" className="w-full mt-4">

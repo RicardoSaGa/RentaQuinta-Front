@@ -19,7 +19,7 @@ function DestacadasCarousel() {
 
       <div className="flex overflow-x-auto gap-5 pb-4">
         {quintas.map((q) => (
-          <Link 
+          <Link
             key={q.id}
             to={`/quinta/${q.id}`}
             className="min-w-[230px] bg-white rounded-xl shadow hover:shadow-lg transition duration-200"
@@ -31,7 +31,9 @@ function DestacadasCarousel() {
             <div className="p-3">
               <p className="font-semibold text-lg">{q.nombre}</p>
               <p className="text-gray-600 text-sm">{q.ubicacion}</p>
-              <p className="text-green-600 font-bold mt-1">${q.precioBase}</p>
+              <p className="text-green-600 font-bold mt-1">
+                {q.precioDesde ? `Desde $${q.precioDesde}` : "Sin tarifas"}
+              </p>
             </div>
           </Link>
         ))}

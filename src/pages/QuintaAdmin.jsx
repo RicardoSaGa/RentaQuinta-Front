@@ -2,7 +2,6 @@ import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import api from "../services/api";
 import toast from 'react-hot-toast';
-import PreciosDia from "../pages/owner/PreciosDia";
 
 export default function QuintaAdmin() {
     const { id } = useParams();
