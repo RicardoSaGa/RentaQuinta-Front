@@ -18,6 +18,8 @@ import QuintaView from "./pages/QuintaView";
 import NotFound from "./pages/NotFound";
 import RegistrarQuinta from "./pages/RegistrarQuinta";
 import DashboardHome from "./pages/dashboard/DashboardHome";
+import ReservasDueno from "./pages/dashboard/ReservasDueno";
+
 
 
 function PageTracker() {
@@ -91,6 +93,15 @@ function App() {
           <Route index element={<DashboardHome />} />
 
           <Route path="mis-quintas" element={<MisQuintas />} />
+
+          <Route
+            path="/dashboard/reservas"
+            element={
+              <ProtectedRoute>
+                <ReservasDueno />
+              </ProtectedRoute>
+            }
+          />
 
           <Route path="nueva-quinta" element={<NuevaQuinta />} />
 
