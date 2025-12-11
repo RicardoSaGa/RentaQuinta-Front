@@ -5,7 +5,6 @@ import Panorama360 from "../components/Panorama360";
 import ReservaCalendar from "../components/ReservaCalendar";
 import Amenidades from "../components/Amenidades";
 import ModalReserva from "../components/ModalReserva";
-
 import { MapContainer, TileLayer, Marker, Popup } from "react-leaflet";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
@@ -132,8 +131,14 @@ function QuintaView() {
   };
 
   const pagarPorTransferencia = () => {
-    console.log("Mostrar instrucciones de transferencia bancaria.");
+    API.put(`/reservas/${idReserva}/transferencia`)
+      .then(() => {
+        toast.success("Pago por transferencia registrado. El dueño confirmará tu reservación.");
+        setModalOpen(false);
+      })
+      .catch(err => toast.error("No se pudo registrar la transferencia."));
   };
+
 
   const reservar = () => {
     if (!selectedRange) {

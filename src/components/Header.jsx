@@ -107,14 +107,25 @@ function Header() {
                   </Link>
 
                   {user.role === "OWNER" && (
-                    <Link
-                      to="/mis-quintas"
-                      className="block px-3 py-2 hover:bg-bg rounded-lg text-textc"
-                      onClick={() => setMenuOpen(false)}
-                    >
-                      Mis quintas
-                    </Link>
+                    <>
+                      <Link
+                        to="/dashboard"
+                        className="block px-3 py-2 hover:bg-bg rounded-lg text-textc font-medium"
+                        onClick={() => setMenuOpen(false)}
+                      >
+                        Dashboard
+                      </Link>
+
+                      <Link
+                        to="/dashboard/mis-quintas"
+                        className="block px-3 py-2 hover:bg-bg rounded-lg text-textc"
+                        onClick={() => setMenuOpen(false)}
+                      >
+                        Mis quintas
+                      </Link>
+                    </>
                   )}
+
 
                   <Link
                     to="/mis-reservas"
@@ -188,6 +199,26 @@ function Header() {
           {user ? (
             <>
               <p className="mt-4 font-semibold text-textc">{user.nombre}</p>
+
+              {user.role === "OWNER" && (
+                <>
+                  <Link
+                    to="/dashboard"
+                    className="block text-lg text-textc"
+                    onClick={() => setOpen(false)}
+                  >
+                    Dashboard
+                  </Link>
+
+                  <Link
+                    to="/dashboard/mis-quintas"
+                    className="block text-lg text-textc"
+                    onClick={() => setOpen(false)}
+                  >
+                    Mis Quintas
+                  </Link>
+                </>
+              )}
 
               <Link
                 to="/mis-reservas"

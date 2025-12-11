@@ -1,7 +1,9 @@
 import { BrowserRouter, Routes, Route, useLocation } from "react-router-dom";
 import { useEffect } from "react";
+import { Toaster } from 'react-hot-toast';
 
 import MainLayout from "./layouts/MainLayout";
+import DashboardLayout from "./layouts/DashboardLayout";
 import Verificado from "./pages/Verificado";
 import PagoExito from "./pages/PagoExito";
 import PagoCancelado from "./pages/PagoCancelado";
@@ -15,7 +17,7 @@ import Home from "./pages/Home";
 import QuintaView from "./pages/QuintaView";
 import NotFound from "./pages/NotFound";
 import RegistrarQuinta from "./pages/RegistrarQuinta";
-import { Toaster } from 'react-hot-toast';
+import DashboardHome from "./pages/dashboard/DashboardHome";
 
 
 function PageTracker() {
@@ -41,8 +43,8 @@ function App() {
       <PageTracker />
 
       <Toaster position="top-center" reverseOrder={false} containerStyle={{
-          zIndex: 999999, // <--- ESTO SOLUCIONA QUE SE VEA BORROSO DETRÁS
-        }}
+        zIndex: 999999, // <--- ESTO SOLUCIONA QUE SE VEA BORROSO DETRÁS
+      }}
       />
 
       <Routes>
@@ -51,7 +53,7 @@ function App() {
           <Route index element={<Home />} />
 
           <Route path="restablecer-password" element={<Home />} />
-          
+
           <Route path="*" element={<NotFound />} />
           <Route path="/quintas/:id" element={<QuintaView />} />
           <Route
@@ -77,32 +79,26 @@ function App() {
           }
         />
 
+        {/* DASHBOARD DEL DUEÑO */}
         <Route
-          path="/dashboard/nueva-quinta"
+          path="/dashboard"
           element={
-            <ProtectedRoute>
-              <NuevaQuinta />
+            <ProtectedRoute requiredRole="OWNER">
+              <DashboardLayout />
             </ProtectedRoute>
           }
-        />
+        >
+          <Route index element={<DashboardHome />} />
 
-        <Route
-          path="/dashboard/mis-quintas"
-          element={
-            <ProtectedRoute>
-              <MisQuintas />
-            </ProtectedRoute>
-          }
-        />
+          <Route path="mis-quintas" element={<MisQuintas />} />
 
-        <Route
-          path="/dashboard/quinta/:id"
-          element={
-            <ProtectedRoute>
-              <QuintaAdmin />
-            </ProtectedRoute>
-          }
-        />
+          <Route path="nueva-quinta" element={<NuevaQuinta />} />
+
+          <Route path="quinta/:id" element={<QuintaAdmin />} />
+
+          <Route path="soporte" element={<div>Centro de soporte</div>} />
+        </Route>
+
 
         <Route path="/registrar-quinta" element={<RegistrarQuinta />} />
 
