@@ -103,6 +103,26 @@ export default function MisReservas() {
                     </p>
                   </div>
 
+                  {/* Datos de evento y precio */}
+                  <div className="mt-3 space-y-1 text-textc/80">
+
+                    <p>
+                      <span className="font-semibold">Evento:</span>{" "}
+                      {r.tipoEvento ? r.tipoEvento.replace("_", " ") : "General"}
+                    </p>
+
+                    <p>
+                      <span className="font-semibold">Horas:</span> {r.horas ?? "-"}
+                    </p>
+
+                    <p>
+                      <span className="font-semibold">Precio total:</span>{" "}
+                      ${r.precioTotal?.toLocaleString("es-MX") ?? "-"}
+                    </p>
+
+                  </div>
+
+
                   <span
                     className={`inline-block mt-4 px-3 py-1 text-sm font-semibold rounded-full ${estadoClase[r.estado]}`}
                   >

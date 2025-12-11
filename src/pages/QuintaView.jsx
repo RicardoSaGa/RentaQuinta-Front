@@ -74,6 +74,14 @@ function QuintaView() {
   const [quinta, setQuinta] = useState(null);
   const [selectedRange, setSelectedRange] = useState(null);
 
+  // Estados para cálculo dinámico
+  const [tipoEvento, setTipoEvento] = useState("GENERAL");
+  const [horas, setHoras] = useState(5);
+  const [precioCalculado, setPrecioCalculado] = useState(null);
+  const [horasDisponibles, setHorasDisponibles] = useState([]);
+
+
+
   const [mostrarGaleria, setMostrarGaleria] = useState(false);
   const [fotoInicial, setFotoInicial] = useState(0);
 
@@ -82,6 +90,8 @@ function QuintaView() {
   const [emailCliente, setEmailCliente] = useState("");
   const [mensajeCliente, setMensajeCliente] = useState("");
   const [idReserva, setIdReserva] = useState(null);
+
+
 
   // Cargar info de la quinta
   useEffect(() => {
@@ -100,6 +110,19 @@ function QuintaView() {
       });
     }
   }, [quinta]);
+
+  useEffect(() => {
+    if (selectedRange) {
+      calcularPrecio();
+    }
+  }, [selectedRange, tipoEvento, horas]);
+
+  useEffect(() => {
+    if (selectedRange) {
+      cargarHorasDisponibles();
+    }
+  }, [selectedRange, tipoEvento]);
+
 
   const pagarConStripe = async () => {
     if (!idReserva) {
@@ -158,9 +181,16 @@ function QuintaView() {
       });
     }
 
+    if (precioCalculado === null) {
+      return toast("Selecciona fecha, tipo de evento y horas válidas.");
+    }
+
     API.post(`/quintas/${id}/reservar`, {
       inicio: selectedRange.startDate.toISOString().slice(0, 10),
       fin: selectedRange.endDate.toISOString().slice(0, 10),
+      tipoEvento,
+      horas,
+      precio: precioCalculado,
       nombreCliente,
       telefonoCliente,
       emailCliente,
@@ -182,6 +212,46 @@ function QuintaView() {
       })
       .catch((err) => console.log(err));
   };
+
+  const calcularPrecio = async () => {
+    if (!selectedRange) return;
+
+    try {
+      const payload = {
+        fecha: selectedRange.startDate.toISOString().slice(0, 10),
+        tipoEvento,
+        horas
+      };
+
+      const res = await API.post(`/quintas/${id}/precio`, payload);
+
+      setPrecioCalculado(res.data.precio ?? null);
+    } catch (err) {
+      console.log(err);
+      setPrecioCalculado(null);
+    }
+  };
+
+  const cargarHorasDisponibles = async () => {
+    if (!selectedRange) return;
+
+    try {
+      const fecha = selectedRange.startDate.toISOString().slice(0, 10);
+      const dateObj = new Date(fecha);
+
+      let diaSemana = dateObj.getDay(); // 0=Dom, 6=Sat
+
+      const res = await API.get(`/quintas/${id}/horas-disponibles`, {
+        params: { diaSemana, tipoEvento }
+      });
+
+      setHorasDisponibles(res.data || []);
+    } catch (err) {
+      console.log(err);
+      setHorasDisponibles([]);
+    }
+  };
+
 
   if (!quinta) {
     return (
@@ -328,17 +398,69 @@ function QuintaView() {
 
           {/* Columna derecha: caja de reserva estilo Airbnb */}
           <div className="sticky top-24 bg-white border border-muted/40 rounded-2xl shadow-xl p-6 space-y-5 h-fit">
-            <div className="flex justify-between items-end">
-              <div>
-                <div className="text-3xl font-bold text-textc">
-                  ${quinta.precioBase}
-                </div>
-                <div className="text-textc/70 text-sm">MXN / noche</div>
+            {/* Precio dinámico */}
+            <div className="flex flex-col mb-4">
+              <div className="text-3xl font-bold text-textc">
+                {precioCalculado !== null
+                  ? `$${precioCalculado} MXN`
+                  : `Desde $${quinta.precioDesde || quinta.precioBase} MXN`}
+              </div>
+
+              <div className="text-textc/70 text-sm">
+                {precioCalculado !== null
+                  ? "Precio según tu selección"
+                  : "Selecciona fecha, evento y horas"}
               </div>
             </div>
 
+            {/* Select: Tipo de Evento */}
+            <div>
+              <label className="block text-sm text-textc/70 mb-1">
+                Tipo de evento
+              </label>
+              <select
+                value={tipoEvento}
+                onChange={(e) => setTipoEvento(e.target.value)}
+                className="w-full border border-muted/60 rounded-full px-4 py-2 text-textc focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary/40"
+              >
+                <option value="GENERAL">Evento general</option>
+                <option value="XV_ANOS">XV años</option>
+                <option value="BODA">Boda</option>
+                <option value="BABY_SHOWER">Baby shower</option>
+                <option value="INFANTIL">Fiesta infantil</option>
+                <option value="OTRO">Otro</option>
+              </select>
+            </div>
+
+            {/* Select: Horas de renta (dinámico desde tarifas del dueño) */}
+            <div className="mt-3">
+              <label className="block text-sm text-textc/70 mb-1">
+                Horas de renta
+              </label>
+
+              <select
+                value={horas}
+                onChange={(e) => setHoras(Number(e.target.value))}
+                className="w-full border border-muted/60 rounded-full px-4 py-2 text-textc focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary/40"
+                disabled={horasDisponibles.length === 0}
+              >
+                {horasDisponibles.length > 0 ? (
+                  horasDisponibles.map((h) => (
+                    <option key={h} value={h}>
+                      {h} horas
+                    </option>
+                  ))
+                ) : (
+                  <option value="">No hay horarios disponibles</option>
+                )}
+              </select>
+            </div>
+
+
+
             <ReservaCalendar
               quintaId={id}
+              tipoEvento={tipoEvento}
               onDateSelect={(sel) => setSelectedRange(sel)}
             />
 

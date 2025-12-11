@@ -4,7 +4,7 @@ import { addDays, isBefore, parseISO, differenceInDays } from "date-fns";
 import API from "../services/api";
 import { es } from "date-fns/locale";
 
-function ReservaCalendar({ quintaId, onDateSelect }) {
+function ReservaCalendar({ quintaId, tipoEvento, onDateSelect }) {
 
   // Rango limpio, sin rangos locos
   const [range, setRange] = useState([
@@ -35,6 +35,39 @@ function ReservaCalendar({ quintaId, onDateSelect }) {
     ]);
   }, [quintaId]);
 
+  // Hacer llamada al backend para obtener días sin tarifas
+  useEffect(() => {
+    if (!tipoEvento) return;
+
+    API.get(`/quintas/${quintaId}/dias-disponibles`, {
+      params: { tipoEvento }
+    })
+      .then((res) => {
+        // res.data = lista de días disponibles, ej: [1,2,3,5]
+        const diasDisponibles = res.data;
+
+        const hoy = new Date();
+        const limite = addDays(hoy, 180); // 6 meses, editable
+
+        let diasNoDisp = [];
+        let cursor = new Date(hoy);
+
+        while (cursor <= limite) {
+          const dow = cursor.getDay(); // 0-6
+          if (!diasDisponibles.includes(dow)) {
+            diasNoDisp.push(
+              new Date(cursor.getFullYear(), cursor.getMonth(), cursor.getDate())
+            );
+          }
+          cursor = addDays(cursor, 1);
+        }
+
+        setDiasSinDisponibilidad(diasNoDisp);
+      })
+      .catch((err) => console.log(err));
+  }, [quintaId, tipoEvento]);
+
+
   // -------------------------
   // Generar disabled dates reales
   // -------------------------
@@ -57,6 +90,8 @@ function ReservaCalendar({ quintaId, onDateSelect }) {
   // -------------------------
 
   const [firstInteraction, setFirstInteraction] = useState(false);
+
+  const [diasSinDisponibilidad, setDiasSinDisponibilidad] = useState([]);
 
   const handleChange = (ranges) => {
 
@@ -98,12 +133,33 @@ function ReservaCalendar({ quintaId, onDateSelect }) {
           ranges={range}
           onChange={handleChange}
           minDate={new Date()}
-          disabledDates={disabledDates}
+          disabledDates={[...disabledDates, ...diasSinDisponibilidad]}
           moveRangeOnFirstSelection={false}
           retainEndDateOnFirstSelection={false}
           editableDateInputs={false}
           fixedHeight={true}
           rangeColors={["#16a34a"]}
+
+          dayContentRenderer={(date) => {
+            const isDisabled = [...disabledDates, ...diasSinDisponibilidad].some(
+              (d) =>
+                d.getFullYear() === date.getFullYear() &&
+                d.getMonth() === date.getMonth() &&
+                d.getDate() === date.getDate()
+            );
+
+            return (
+              <div
+                style={{
+                  opacity: isDisabled ? 0.35 : 1,
+                  pointerEvents: isDisabled ? "none" : "auto",
+                  cursor: isDisabled ? "not-allowed" : "pointer",
+                }}
+              >
+                {date.getDate()}
+              </div>
+            );
+          }}
         />
       </div>
 

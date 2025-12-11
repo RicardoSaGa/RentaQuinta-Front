@@ -100,6 +100,27 @@ export default function ReservaView() {
         </p>
       </div>
 
+      
+      {/* Datos del evento */}
+      <div className="mt-6 p-4 bg-gray-50 rounded-xl border">
+        <h2 className="text-xl font-bold mb-2">Detalles de la renta</h2>
+
+        <p>
+          <span className="font-semibold">Tipo de evento:</span>{" "}
+          {reserva.tipoEvento ? reserva.tipoEvento.replace("_", " ") : "General"}
+        </p>
+
+        <p>
+          <span className="font-semibold">Horas rentadas:</span>{" "}
+          {reserva.horas ?? "-"}
+        </p>
+
+        <p>
+          <span className="font-semibold">Precio final:</span>{" "}
+          ${reserva.precioTotal?.toLocaleString("es-MX")}
+        </p>
+      </div>
+
       {/* SECCION INFORMACION DEL CLIENTE */}
       <div className="mt-6 p-4 bg-gray-50 rounded-xl border">
         <h2 className="text-xl font-bold mb-2">Tus datos</h2>
