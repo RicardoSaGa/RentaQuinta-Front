@@ -6,18 +6,19 @@ export default function ModalReserva({
   titulo,
   mensaje,
   onPagarStripe,
-  onPagarTransferencia,
+  onTransferencia,
 }) {
   if (!open) return null;
 
   return (
-    <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-50 px-4">
+    <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-[999] px-4">
       <div className="bg-white rounded-2xl shadow-xl max-w-md w-full p-6 animate-fadeInUp">
+
         <h2 className="text-2xl font-bold mb-3">{titulo}</h2>
         <p className="text-gray-700 mb-6">{mensaje}</p>
 
-        {/* Opciones de pago estilo Airbnb */}
         <div className="space-y-3 mb-4">
+
           {onPagarStripe && (
             <button
               onClick={onPagarStripe}
@@ -27,9 +28,9 @@ export default function ModalReserva({
             </button>
           )}
 
-          {onPagarTransferencia && (
+          {onTransferencia && (
             <button
-              onClick={onPagarTransferencia}
+              onClick={onTransferencia}
               className="w-full border border-gray-300 text-gray-800 font-medium py-2.5 rounded-xl hover:bg-gray-100 transition"
             >
               Pagar por transferencia bancaria

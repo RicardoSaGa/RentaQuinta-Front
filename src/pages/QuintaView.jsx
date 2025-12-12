@@ -9,6 +9,7 @@ import { MapContainer, TileLayer, Marker, Popup } from "react-leaflet";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
 import toast from "react-hot-toast";
+import ModalComprobante from "../components/ModalComprobante";
 
 // Icon personalizado
 const icon = new L.Icon({
@@ -91,6 +92,9 @@ function QuintaView() {
   const [mensajeCliente, setMensajeCliente] = useState("");
   const [idReserva, setIdReserva] = useState(null);
 
+  const [openComprobante, setOpenComprobante] = useState(false);
+  const [idReservaCreada, setIdReservaCreada] = useState(null);
+
 
 
   // Cargar info de la quinta
@@ -122,6 +126,25 @@ function QuintaView() {
       cargarHorasDisponibles();
     }
   }, [selectedRange, tipoEvento]);
+
+  // ENVIO DE COMPROBANTE
+  const enviarComprobante = async (archivo) => {
+    try {
+      const formData = new FormData();
+      formData.append("file", archivo);
+
+      await API.post(`/reservas/${idReservaCreada}/comprobante`, formData, {
+        headers: { "Content-Type": "multipart/form-data" },
+      });
+
+      toast.success("Comprobante enviado correctamente");
+      setOpenComprobante(false);
+
+    } catch (error) {
+      console.error(error);
+      toast.error("No se pudo enviar el comprobante");
+    }
+  };
 
 
   const pagarConStripe = async () => {
@@ -160,6 +183,12 @@ function QuintaView() {
         setModalOpen(false);
       })
       .catch(err => toast.error("No se pudo registrar la transferencia."));
+  };
+
+  const handleTransferencia = () => {
+    setModalOpen(false);
+    setOpenComprobante(true);
+    setIdReservaCreada(idReserva);
   };
 
 
@@ -524,8 +553,16 @@ function QuintaView() {
         titulo={modalTitulo}
         mensaje={modalMensaje}
         onPagarStripe={pagarConStripe}
-        onPagarTransferencia={pagarPorTransferencia}
+        onTransferencia={handleTransferencia}
       />
+
+
+      <ModalComprobante
+        open={openComprobante}
+        onClose={() => setOpenComprobante(false)}
+        onEnviar={enviarComprobante}
+      />
+
     </div>
   );
 }
