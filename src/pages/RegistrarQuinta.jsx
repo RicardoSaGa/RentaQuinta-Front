@@ -1,3 +1,4 @@
+// src/pages/RegistrarQuinta.jsx
 import { useState } from "react";
 import Sidebar from "../components/registroQuinta/Sidebar";
 import StepOwner from "../components/registroQuinta/StepOwner";
@@ -8,12 +9,14 @@ import StepReglas from "../components/registroQuinta/StepReglas";
 import StepFotos from "../components/registroQuinta/StepFotos";
 import StepConfirmacion from "../components/registroQuinta/StepConfirmacion";
 import StepVerificar from "../components/registroQuinta/StepVerificar";
+
+import StepVerificacionINE from "../components/registroQuinta/StepVerificacionINE";
+import StepSelfieINE from "../components/registroQuinta/StepSelfieINE";
+
 import { AnimatePresence, motion } from "framer-motion";
 import { useAuth } from "../context/AuthContext";
 
-
 function RegistrarQuinta() {
-
     const { login } = useAuth();
     const [step, setStep] = useState(1);
 
@@ -22,20 +25,103 @@ function RegistrarQuinta() {
     const [fotos, setFotos] = useState([]);
 
     const steps = {
-        1: <StepOwner step={step} setStep={setStep} ownerData={ownerData} setOwnerData={setOwnerData} />,
-        2: <StepInfoGeneral step={step} setStep={setStep} quintaData={quintaData} setQuintaData={setQuintaData} />,
-        3: <StepAlberca step={step} setStep={setStep} quintaData={quintaData} setQuintaData={setQuintaData} />,
-        4: <StepServicios step={step} setStep={setStep} quintaData={quintaData} setQuintaData={setQuintaData} />,
-        5: <StepReglas step={step} setStep={setStep} quintaData={quintaData} setQuintaData={setQuintaData} />,
-        6: <StepFotos step={step} setStep={setStep} quintaData={quintaData} setQuintaData={setQuintaData} />,
-        7: <StepConfirmacion step={step} setStep={setStep} quintaData={quintaData} setQuintaData={setQuintaData} />,
-        98: (<StepVerificar ownerData={ownerData} setOwnerData={setOwnerData} setStep={setStep} login={login} />),
+        1: (
+            <StepOwner
+                step={step}
+                setStep={setStep}
+                ownerData={ownerData}
+                setOwnerData={setOwnerData}
+            />
+        ),
 
+        // 2: Verificar correo
+        2: (
+            <StepVerificar
+                ownerData={ownerData}
+                setOwnerData={setOwnerData}
+                setStep={setStep}
+                login={login}
+            />
+        ),
+
+        // 3: INE (frente y reverso)
+        3: (
+            <StepVerificacionINE
+                step={step}
+                setStep={setStep}
+                ownerData={ownerData}
+                setOwnerData={setOwnerData}
+            />
+        ),
+
+        // 4: Selfie con INE
+        4: (
+            <StepSelfieINE
+                step={step}
+                setStep={setStep}
+                ownerData={ownerData}
+                setOwnerData={setOwnerData}
+            />
+        ),
+
+        5: (
+            <StepInfoGeneral
+                step={step}
+                setStep={setStep}
+                quintaData={quintaData}
+                setQuintaData={setQuintaData}
+            />
+        ),
+
+        6: (
+            <StepAlberca
+                step={step}
+                setStep={setStep}
+                quintaData={quintaData}
+                setQuintaData={setQuintaData}
+            />
+        ),
+
+        7: (
+            <StepServicios
+                step={step}
+                setStep={setStep}
+                quintaData={quintaData}
+                setQuintaData={setQuintaData}
+            />
+        ),
+
+        8: (
+            <StepReglas
+                step={step}
+                setStep={setStep}
+                quintaData={quintaData}
+                setQuintaData={setQuintaData}
+            />
+        ),
+
+        9: (
+            <StepFotos
+                step={step}
+                setStep={setStep}
+                quintaData={quintaData}
+                setQuintaData={setQuintaData}
+            />
+        ),
+
+        10: (
+            <StepConfirmacion
+                step={step}
+                setStep={setStep}
+                quintaData={quintaData}
+                setQuintaData={setQuintaData}
+            />
+        ),
     };
+
 
     return (
         <div className="min-h-screen flex bg-gray-100">
-
             <Sidebar step={step} setStep={setStep} />
 
             <div className="flex-1 p-10">

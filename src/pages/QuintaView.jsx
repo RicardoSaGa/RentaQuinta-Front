@@ -255,6 +255,10 @@ function QuintaView() {
       const res = await API.post(`/quintas/${id}/precio`, payload);
 
       setPrecioCalculado(res.data.precio ?? null);
+      if (typeof res.data === "number") {
+        setPrecioCalculado(res.data);
+      }
+
     } catch (err) {
       console.log(err);
       setPrecioCalculado(null);
@@ -268,7 +272,8 @@ function QuintaView() {
       const fecha = selectedRange.startDate.toISOString().slice(0, 10);
       const dateObj = new Date(fecha);
 
-      let diaSemana = dateObj.getDay(); // 0=Dom, 6=Sat
+      let diaSemana = dateObj.getDay();
+      if (diaSemana === 0) diaSemana = 7; // 0→7 para Domingo (ISO 1–7)
 
       const res = await API.get(`/quintas/${id}/horas-disponibles`, {
         params: { diaSemana, tipoEvento }

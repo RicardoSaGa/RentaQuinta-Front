@@ -11,7 +11,9 @@ const defaultAvatars = {
 
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
-  const [token, setToken] = useState(localStorage.getItem("token") || null);
+  const [token, setToken] = useState(
+    localStorage.getItem("token") || sessionStorage.getItem("token") || null
+  );
 
   // Cambia ESTA constante según estés en local o en el servidor
   // LOCAL:   "http://localhost:8080"
@@ -34,16 +36,28 @@ export function AuthProvider({ children }) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [token]);
 
-  // LOGIN (email + password)
-  const login = async (email, password) => {
-    // 1) pedir token
+  // LOGIN (email + password + rememberMe)
+  const login = async (email, password, rememberMe = true) => {
+    // 1) pedir token al backend
     const res = await axios.post(`${AUTH_BASE}/auth/login`, {
       email,
       password,
+      rememberMe,
     });
 
     const newToken = res.data;
-    localStorage.setItem("token", newToken);
+
+    // Limpiar tokens anteriores
+    localStorage.removeItem("token");
+    sessionStorage.removeItem("token");
+
+    // Guardar según la preferencia del usuario
+    if (rememberMe) {
+      localStorage.setItem("token", newToken);
+    } else {
+      sessionStorage.setItem("token", newToken);
+    }
+
     setToken(newToken);
 
     // 2) cargar perfil
@@ -53,6 +67,7 @@ export function AuthProvider({ children }) {
 
     setUser(profile.data);
   };
+
 
   // REGISTER (nombre + email + password)
   const register = async (userData) => {
@@ -76,9 +91,11 @@ export function AuthProvider({ children }) {
   // LOGOUT
   const logout = () => {
     localStorage.removeItem("token");
+    sessionStorage.removeItem("token");
     setToken(null);
     setUser(null);
   };
+
 
   return (
     <AuthContext.Provider value={{ user, token, login, register, logout }}>

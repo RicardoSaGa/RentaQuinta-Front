@@ -28,6 +28,70 @@ function StepInfoGeneral({ step, setStep, quintaData, setQuintaData }) {
     const [sugerencias, setSugerencias] = useState([]);
     const [error, setError] = useState("");
 
+    // === NUEVO: esquema de precios y tarifas personalizadas ===
+    const [esquemaPrecios, setEsquemaPrecios] = useState(
+        quintaData.esquemaPrecios || "SENCILLO"
+    );
+
+    const [tarifas, setTarifas] = useState(quintaData.tarifasPersonalizadas || []);
+
+    const [tarifaTemp, setTarifaTemp] = useState({
+        diaSemana: "",
+        tipoEvento: "",
+        horas: "",
+        precio: "",
+    });
+
+    const [diasSeleccionados, setDiasSeleccionados] = useState([]);
+
+
+    const diasSemana = [
+        { value: "1", label: "Lunes" },
+        { value: "2", label: "Martes" },
+        { value: "3", label: "Miércoles" },
+        { value: "4", label: "Jueves" },
+        { value: "5", label: "Viernes" },
+        { value: "6", label: "Sábado" },
+        { value: "7", label: "Domingo" },
+    ];
+
+    const tiposEvento = ["NORMAL", "INFANTIL", "XV", "BODA", "OTRO"];
+
+    const agregarTarifa = () => {
+        if (
+            diasSeleccionados.length === 0 ||
+            !tarifaTemp.tipoEvento ||
+            !tarifaTemp.horas ||
+            !tarifaTemp.precio
+        ) {
+            setError("Selecciona al menos un día y completa todos los campos de la tarifa.");
+            window.scrollTo({ top: 0, behavior: "smooth" });
+            return;
+        }
+
+        const nuevasTarifas = diasSeleccionados.map((dia) => ({
+            diaSemana: dia,
+            tipoEvento: tarifaTemp.tipoEvento,
+            horas: tarifaTemp.horas,
+            precio: tarifaTemp.precio,
+        }));
+
+        setTarifas((prev) => [...prev, ...nuevasTarifas]);
+
+        setTarifaTemp({
+            diaSemana: "",
+            tipoEvento: "",
+            horas: "",
+            precio: "",
+        });
+        setDiasSeleccionados([]);
+    };
+
+
+    const eliminarTarifa = (index) => {
+        setTarifas((prev) => prev.filter((_, i) => i !== index));
+    };
+
     // buscar direcciones en Mapbox
     const buscarDireccion = async (texto) => {
         if (texto.length < 3) {
@@ -65,29 +129,31 @@ function StepInfoGeneral({ step, setStep, quintaData, setQuintaData }) {
             dragend() { },
         });
 
-        // Componente para mover la cámara del mapa cuando cambian lat/lng
-        function ActualizarMapa({ center }) {
+        function ActualizarMapaInterno({ center }) {
             const map = useMap();
             useEffect(() => {
-                map.setView(center, 15); // 15 es el zoom
+                map.setView(center, 15);
             }, [center, map]);
             return null;
         }
 
         return (
-            <Marker
-                position={[lat, lng]}
-                icon={markerIcon}
-                draggable={true}
-                eventHandlers={{
-                    dragend: (e) => {
-                        const marker = e.target;
-                        const pos = marker.getLatLng();
-                        setLat(pos.lat);
-                        setLng(pos.lng);
-                    },
-                }}
-            />
+            <>
+                <Marker
+                    position={[lat, lng]}
+                    icon={markerIcon}
+                    draggable={true}
+                    eventHandlers={{
+                        dragend: (e) => {
+                            const marker = e.target;
+                            const pos = marker.getLatLng();
+                            setLat(pos.lat);
+                            setLng(pos.lng);
+                        },
+                    }}
+                />
+                <ActualizarMapaInterno center={[lat, lng]} />
+            </>
         );
     }
 
@@ -106,6 +172,11 @@ function StepInfoGeneral({ step, setStep, quintaData, setQuintaData }) {
         if (!descripcion.trim() || descripcion.length < 20)
             return "Describe tu quinta con al menos 20 caracteres.";
         if (!direccion.trim()) return "Selecciona una dirección válida.";
+
+        if (esquemaPrecios === "AVANZADO" && tarifas.length === 0) {
+            return "Agrega al menos una tarifa personalizada para el esquema avanzado.";
+        }
+
         return null;
     };
 
@@ -113,6 +184,7 @@ function StepInfoGeneral({ step, setStep, quintaData, setQuintaData }) {
         const v = validar();
         if (v) {
             setError(v);
+            window.scrollTo({ top: 0, behavior: "smooth" });
             return;
         }
 
@@ -127,14 +199,16 @@ function StepInfoGeneral({ step, setStep, quintaData, setQuintaData }) {
             municipio,
             lat,
             lng,
+            esquemaPrecios,
+            tarifasPersonalizadas: tarifas,
         });
 
-        setStep(3);
+        setStep(6);
     };
+
 
     return (
         <div className="max-w-3xl">
-
             <h1 className="text-2xl font-bold text-gray-800 mb-3">
                 Información general de la quinta
             </h1>
@@ -146,7 +220,9 @@ function StepInfoGeneral({ step, setStep, quintaData, setQuintaData }) {
 
             {/* Nombre */}
             <div className="mt-4">
-                <label className="block text-sm font-medium text-gray-700 mb-1">Nombre de la quinta</label>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Nombre de la quinta
+                </label>
                 <input
                     type="text"
                     className="w-full p-3 border border-gray-300 rounded-xl"
@@ -155,9 +231,11 @@ function StepInfoGeneral({ step, setStep, quintaData, setQuintaData }) {
                 />
             </div>
 
-            {/* Precio */}
+            {/* Precio base (simple) */}
             <div className="mt-4">
-                <label className="block text-sm font-medium text-gray-700 mb-1">Precio por noche (MXN)</label>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Precio por noche (MXN)
+                </label>
                 <input
                     type="number"
                     className="w-full p-3 border border-gray-300 rounded-xl"
@@ -166,9 +244,169 @@ function StepInfoGeneral({ step, setStep, quintaData, setQuintaData }) {
                 />
             </div>
 
+            {/* ESQUEMA DE PRECIOS */}
+            <div className="mt-4 border rounded-xl p-4 bg-gray-50">
+                <p className="text-sm font-medium text-gray-700 mb-2">
+                    Esquema de precios
+                </p>
+
+                <div className="space-y-2 text-sm">
+                    <label className="flex items-center gap-2">
+                        <input
+                            type="radio"
+                            name="esquemaPrecios"
+                            value="SENCILLO"
+                            checked={esquemaPrecios === "SENCILLO"}
+                            onChange={() => setEsquemaPrecios("SENCILLO")}
+                        />
+                        <span>Usar solo el precio por noche como tarifa general.</span>
+                    </label>
+
+                    <label className="flex items-center gap-2">
+                        <input
+                            type="radio"
+                            name="esquemaPrecios"
+                            value="AVANZADO"
+                            checked={esquemaPrecios === "AVANZADO"}
+                            onChange={() => setEsquemaPrecios("AVANZADO")}
+                        />
+                        <span>Configurar precios por día y tipo de evento.</span>
+                    </label>
+                </div>
+
+                {esquemaPrecios === "AVANZADO" && (
+                    <div className="mt-4 space-y-3">
+                        <p className="text-xs text-gray-600">
+                            Agrega tarifas específicas. Por ejemplo: sábado, boda, 10 horas, $6,500.
+                        </p>
+
+                        <div className="grid grid-cols-1 md:grid-cols-4 gap-3">
+                            <div>
+                                <label className="block text-xs font-medium text-gray-700 mb-1">
+                                    Días aplicables
+                                </label>
+                                <div className="border border-gray-300 rounded-lg p-2 text-xs max-h-32 overflow-y-auto bg-white">
+                                    {diasSemana.map((d) => {
+                                        const checked = diasSeleccionados.includes(d.value);
+                                        return (
+                                            <label
+                                                key={d.value}
+                                                className="flex items-center gap-2 mb-1 cursor-pointer"
+                                            >
+                                                <input
+                                                    type="checkbox"
+                                                    className="h-3 w-3"
+                                                    checked={checked}
+                                                    onChange={() => {
+                                                        setDiasSeleccionados((prev) => {
+                                                            if (prev.includes(d.value)) {
+                                                                return prev.filter((v) => v !== d.value);
+                                                            }
+                                                            return [...prev, d.value];
+                                                        });
+                                                    }}
+                                                />
+                                                <span>{d.label}</span>
+                                            </label>
+                                        );
+                                    })}
+                                </div>
+                            </div>
+
+
+                            <div>
+                                <label className="block text-xs font-medium text-gray-700 mb-1">
+                                    Tipo de evento
+                                </label>
+                                <select
+                                    className="w-full p-2 border border-gray-300 rounded-lg text-sm"
+                                    value={tarifaTemp.tipoEvento}
+                                    onChange={(e) =>
+                                        setTarifaTemp({ ...tarifaTemp, tipoEvento: e.target.value })
+                                    }
+                                >
+                                    <option value="">Seleccionar</option>
+                                    {tiposEvento.map((t) => (
+                                        <option key={t} value={t}>
+                                            {t}
+                                        </option>
+                                    ))}
+                                </select>
+                            </div>
+
+                            <div>
+                                <label className="block text-xs font-medium text-gray-700 mb-1">
+                                    Horas incluidas
+                                </label>
+                                <input
+                                    type="number"
+                                    className="w-full p-2 border border-gray-300 rounded-lg text-sm"
+                                    value={tarifaTemp.horas}
+                                    onChange={(e) =>
+                                        setTarifaTemp({ ...tarifaTemp, horas: e.target.value })
+                                    }
+                                />
+                            </div>
+
+                            <div>
+                                <label className="block text-xs font-medium text-gray-700 mb-1">
+                                    Precio (MXN)
+                                </label>
+                                <input
+                                    type="number"
+                                    className="w-full p-2 border border-gray-300 rounded-lg text-sm"
+                                    value={tarifaTemp.precio}
+                                    onChange={(e) =>
+                                        setTarifaTemp({ ...tarifaTemp, precio: e.target.value })
+                                    }
+                                />
+                            </div>
+                        </div>
+
+                        <div className="flex justify-end">
+                            <button
+                                type="button"
+                                onClick={agregarTarifa}
+                                className="px-4 py-2 bg-blue-600 text-white rounded-lg text-sm hover:bg-blue-700 transition"
+                            >
+                                Agregar tarifa
+                            </button>
+                        </div>
+
+                        {tarifas.length > 0 && (
+                            <div className="mt-3 border rounded-lg divide-y bg-white">
+                                {tarifas.map((t, idx) => {
+                                    const dia = diasSemana.find((d) => d.value === t.diaSemana);
+                                    return (
+                                        <div
+                                            key={idx}
+                                            className="flex items-center justify-between px-3 py-2 text-sm"
+                                        >
+                                            <span>
+                                                {dia ? dia.label : "Día"} — {t.tipoEvento} — {t.horas} hrs — $
+                                                {t.precio}
+                                            </span>
+                                            <button
+                                                type="button"
+                                                onClick={() => eliminarTarifa(idx)}
+                                                className="text-red-600 text-xs hover:underline"
+                                            >
+                                                Eliminar
+                                            </button>
+                                        </div>
+                                    );
+                                })}
+                            </div>
+                        )}
+                    </div>
+                )}
+            </div>
+
             {/* Capacidad */}
             <div className="mt-4">
-                <label className="block text-sm font-medium text-gray-700 mb-1">Capacidad máxima</label>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Capacidad máxima
+                </label>
                 <input
                     type="number"
                     className="w-full p-3 border border-gray-300 rounded-xl"
@@ -179,7 +417,9 @@ function StepInfoGeneral({ step, setStep, quintaData, setQuintaData }) {
 
             {/* Descripción */}
             <div className="mt-4">
-                <label className="block text-sm font-medium text-gray-700 mb-1">Descripción</label>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Descripción
+                </label>
                 <textarea
                     className="w-full p-3 border border-gray-300 rounded-xl h-32"
                     value={descripcion}
@@ -189,7 +429,9 @@ function StepInfoGeneral({ step, setStep, quintaData, setQuintaData }) {
 
             {/* Dirección con autocompletado */}
             <div className="mt-4 relative">
-                <label className="block text-sm font-medium text-gray-700 mb-1">Dirección</label>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Dirección
+                </label>
                 <input
                     type="text"
                     className="w-full p-3 border border-gray-300 rounded-xl"
@@ -218,7 +460,9 @@ function StepInfoGeneral({ step, setStep, quintaData, setQuintaData }) {
 
             {/* Municipio */}
             <div className="mt-4">
-                <label className="block text-sm font-medium text-gray-700 mb-1">Municipio</label>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Municipio
+                </label>
                 <input
                     type="text"
                     className="w-full p-3 border border-gray-300 rounded-xl"
@@ -229,7 +473,9 @@ function StepInfoGeneral({ step, setStep, quintaData, setQuintaData }) {
 
             {/* Mapa */}
             <div className="mt-6">
-                <label className="block text-sm font-medium text-gray-700 mb-2">Ubicación en el mapa</label>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Ubicación en el mapa
+                </label>
 
                 <MapContainer
                     center={[lat, lng]}

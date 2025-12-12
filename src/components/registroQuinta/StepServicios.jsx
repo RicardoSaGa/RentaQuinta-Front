@@ -30,7 +30,7 @@ function StepServicios({ step, setStep, quintaData, setQuintaData }) {
       ...services,
     });
 
-    setStep(5);
+    setStep(8);
   };
 
   const SERVICIOS_LISTA = [

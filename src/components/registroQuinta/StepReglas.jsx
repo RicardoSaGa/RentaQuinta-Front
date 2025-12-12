@@ -64,7 +64,7 @@ function StepReglas({ step, setStep, quintaData, setQuintaData }) {
       reglasExtra,
     });
 
-    setStep(6);
+    setStep(9);
   };
 
   return (

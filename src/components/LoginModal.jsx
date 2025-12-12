@@ -28,20 +28,18 @@ function LoginModal({ isOpen, onClose }) {
   const [telefono, setTelefono] = useState("");
   const [genero, setGenero] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
-
+  const [rememberMe, setRememberMe] = useState(true);
   const [selectedCountry, setSelectedCountry] = useState(COUNTRY_OPTIONS[0]);
   const [showRegisterPassword, setShowRegisterPassword] = useState(false);
-
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [registerErrors, setRegisterErrors] = useState({});
-
   const [resetToken, setResetToken] = useState("");
 
   useEffect(() => {
     if (isOpen) {
       // LIMPIEZA: Aseguramos que los campos no tengan basura anterior
-      setPassword(""); 
+      setPassword("");
       setConfirmPassword("");
       setError("");
 
@@ -63,7 +61,7 @@ function LoginModal({ isOpen, onClose }) {
     setError("");
 
     try {
-      await login(email, password);
+      await login(email, password, rememberMe);
       onClose();
     } catch (err) {
       if (err.response) {
@@ -226,11 +224,25 @@ function LoginModal({ isOpen, onClose }) {
                 />
               </div>
 
+              <div className="flex items-center gap-2 text-xs text-gray-600">
+                <input
+                  id="rememberMe"
+                  type="checkbox"
+                  className="rounded border-gray-300"
+                  checked={rememberMe}
+                  onChange={(e) => setRememberMe(e.target.checked)}
+                />
+                <label htmlFor="rememberMe">
+                  Mantener sesión iniciada
+                </label>
+              </div>
+
               {error && (
                 <p className="text-red-600 text-sm text-center bg-red-50 p-2 rounded-lg">
                   {error}
                 </p>
               )}
+
 
               <button
                 type="submit"
@@ -262,7 +274,7 @@ function LoginModal({ isOpen, onClose }) {
 
           </>
         )}
-        
+
         {view === "register" && (
           <>
             <h2 className="text-2xl font-bold mb-6 text-center text-gray-800">
@@ -536,7 +548,7 @@ function LoginModal({ isOpen, onClose }) {
 
                 } catch (err) {
                   const msg = err.response?.data?.message || "Error al actualizar.";
-                  toast.error(msg); 
+                  toast.error(msg);
                   setError(msg);
                 } finally {
                   setLoading(false);

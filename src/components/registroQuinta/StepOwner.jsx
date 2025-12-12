@@ -88,7 +88,7 @@ function StepOwner({ step, setStep, ownerData, setOwnerData }) {
       setOwnerData({ nombre, email, telefono, genero, password });
 
       // 3. Avanzar al siguiente paso
-      setStep(98);
+      setStep(2);
     } catch (err) {
       const msg =
         err?.response?.data && typeof err.response.data === "string"

@@ -51,7 +51,7 @@ function StepAlberca({ step, setStep, quintaData, setQuintaData }) {
       descripcionAlberca: descripcion,
     });
 
-    setStep(4);
+    setStep(7);
   };
 
   return (

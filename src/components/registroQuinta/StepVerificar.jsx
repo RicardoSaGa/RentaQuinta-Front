@@ -5,6 +5,8 @@ import Alert from "../ui/Alert";
 function StepVerificar({ ownerData, setOwnerData, setStep, login }) {
     const [checking, setChecking] = useState(false);
     const [statusMsg, setStatusMsg] = useState(null);
+    const [resendLoading, setResendLoading] = useState(false);
+
 
     const verificar = async () => {
         setChecking(true);
@@ -22,8 +24,10 @@ function StepVerificar({ ownerData, setOwnerData, setStep, login }) {
                     password: undefined
                 }));
 
-                // avanzar al paso 2 del registro
-                setStep(2);
+                // avanzar al paso 3 del registro (INE)
+                setStep(3);
+
+
             }
             else {
                 setStatusMsg("Tu correo aún no aparece como verificado.");
@@ -34,6 +38,28 @@ function StepVerificar({ ownerData, setOwnerData, setStep, login }) {
             setChecking(false);
         }
     };
+
+    const reenviarCorreo = async () => {
+        setStatusMsg(null);
+        setResendLoading(true);
+
+        try {
+            await API.post("/auth/resend-verification", {
+                email: ownerData.email,
+            });
+
+            setStatusMsg(
+                "Te enviamos un nuevo correo de verificación. Revisa tu bandeja de entrada y la carpeta de spam."
+            );
+        } catch (e) {
+            setStatusMsg(
+                "No se pudo reenviar el correo en este momento. Inténtalo de nuevo en unos minutos."
+            );
+        } finally {
+            setResendLoading(false);
+        }
+    };
+
 
     return (
         <div className="max-w-xl">
@@ -53,12 +79,20 @@ function StepVerificar({ ownerData, setOwnerData, setStep, login }) {
                 <button
                     onClick={verificar}
                     disabled={checking}
-                    className="px-5 py-2.5 rounded-xl bg-green-600 text-white font-semibold hover:bg-green-700 transition shadow"
+                    className="px-5 py-2.5 rounded-xl bg-green-600 text-white font-semibold hover:bg-green-700 transition shadow disabled:opacity-60"
                 >
-                    Ya verifiqué mi correo
+                    {checking ? "Verificando..." : "Ya verifiqué mi correo"}
                 </button>
 
+                <button
+                    onClick={reenviarCorreo}
+                    disabled={resendLoading || checking}
+                    className="px-5 py-2.5 rounded-xl border border-gray-300 text-gray-700 text-sm font-semibold hover:bg-gray-50 transition disabled:opacity-60"
+                >
+                    {resendLoading ? "Reenviando..." : "Reenviar correo"}
+                </button>
             </div>
+
         </div>
     );
 }

@@ -46,7 +46,7 @@ function StepFotos({ step, setStep, quintaData, setQuintaData }) {
       fotos,
     });
 
-    setStep(7);
+    setStep(10);
   };
 
   return (
